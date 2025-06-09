@@ -1,0 +1,31 @@
+def read_data(path, bkg=None):
+
+    d=pd.read_csv(path)
+    for index,row in d.iterrows():
+        first_val = d.iloc[index,1]
+
+        if pd.isna(first_val):
+            last_index = index
+            break
+
+    d = d.iloc[:last_index,:]
+    d = d.dropna(axis=1)
+    names = [name for name in list(d.columns) if "Unnamed" not in name]
+    d.rename(columns = d.iloc[0])
+    d=d.drop(index=0)
+    data_sets = {}
+    set_num = int(len(d.columns)/2)
+    for i in range(set_num):
+        name = names[i]
+        x=np.array(d.iloc[:,i*2],float)
+        y=np.array(d.iloc[:,i*2+1],float)
+        data_sets[name] = ([x,y])
+        if bkg is not None and bkg == name:
+            bkg = [name,x,y]
+
+    if bkg is not None:
+        return data_sets,bkg
+    else:
+        keys = list(data_sets.keys())
+        # del data_sets[keys[0]]
+        return data_sets
